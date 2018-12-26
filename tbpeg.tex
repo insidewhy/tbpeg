@@ -61,7 +61,7 @@ The equivalent TBPEG:
 
 A ``!'' operator must be prefixed with ``\&'' to make it a not-predicate regardless of whether it matches a single character or not:
 \begin{alltt}
-    NonPVariable <- &!"p" Variable
+    PublicProperty <- &!"_" Variable
 \end{alltt}
 
 
@@ -171,7 +171,7 @@ TBPEG Storing expressions that match a single character have a storage type of `
 A ``!'' operator applied to a character matching sub-expression is always a storing expression of type character.
 \begin{alltt}
     StoresCharacter <- ! "p"
-    StoresNull      <- \&! "p"
+    StoresVoid      <- \&! "p"
 \end{alltt}
 
 \subsection{Storing repetitions of character matches}
