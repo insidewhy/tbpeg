@@ -366,10 +366,10 @@ In this case the storage types contain more variants that enable redundant tree 
 \begin{alltt}
     class Expression;
     class Product \{
-         vector< variant<string, Expression> > value\_;
+        vector< variant<string, Expression> > value\_;
     \}
     class Addition \{
-         variant<Product, string, Expression> value\_;
+        vector< variant<Product, string, Expression> > value\_;
     \}
     class Expression \{
         variant<Addition, Product, string, Expression> value\_;
