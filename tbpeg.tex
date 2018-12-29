@@ -46,8 +46,8 @@ TBPEGs behave identical to Parsing Expression Grammars\cite{peg} except for the 
 
 \subsection{The ``!'' operator does not create a not-predicate for character matching expressions}
 
-In PEGs the not-predicate is specified with the ``!'' operator and fails when the sub-expression matches otherwise succeeds and never consumes.
-In TBPEGs if the sub-expression of a ``!'' operator matches a character then it consumes that character.
+In PEGs the not-predicate is specified with the ``!'' operator and fails when the subexpression matches otherwise succeeds and never consumes.
+In TBPEGs if the subexpression of a ``!'' operator matches a character then it consumes that character.
 
 A PEG that uses a not-predicate:
 \begin{alltt}
@@ -71,7 +71,7 @@ The operator $\wedge$ is used between elements where whitespace is not permitted
 $\wedge$ has higher precedence than the sequence operator.
 Multiple expressions joined with the $\wedge$ operator are called a ``joined sequence''.
 The operator $\sim$ is provided to separate items in a sequence where Spacing is mandatory and has the same precedence as $\wedge$.
-A joined sequence where every sub-expression is a lexeme, character or string matching expression is a ``lexeme''.
+A joined sequence where every subexpression is a lexeme, character or string matching expression is a ``lexeme''.
 The rule ``Spacing'' may not refer to itself, therefore it may not contain sequences, joined sequences are permitted.
 
 This PEG:
@@ -92,7 +92,7 @@ Is equivalent to this TBPEG:
     VariableDeclaration <- "var" \(\sim\) Identifier Assignment?
 \end{alltt}
 
-Spacing is optional between elements in a ``+'' or ``*'' repetition unless the sub-expression is a character match.
+Spacing is optional between elements in a ``+'' or ``*'' repetition unless the subexpression is a character match.
 ``$\wedge$+'' and ``$\wedge$*'' are equivalent to ``+'' and ``*'' in PEG notation.
 
 This PEG:
@@ -145,7 +145,7 @@ Enclose a character in brackets to force it to have character storage type:
 
 The expression ``Spacing'' is constant, as are predicates, $\backslash r$, $\backslash n$, $\backslash t$, $\backslash n$, $\backslash s$ and the empty string $\varepsilon$.
 
-% Ordered choice in which all sub-expressions are constant are also constant except in the cases described in a later section:
+% Ordered choice in which all subexpressions are constant are also constant except in the cases described in a later section:
 % \begin{alltt}
 %     NotEndOfLine <- \&!\(\backslash\)n  / \(\varepsilon\)
 % \end{alltt}
@@ -155,7 +155,7 @@ Repetitions of constant expressions are constant.
     EmptyLines <- EndOfLine+
 \end{alltt}
 
-Sequences and joined sequences in which all sub-expressions are constant are also constant.
+Sequences and joined sequences in which all subexpressions are constant are also constant.
 \begin{alltt}
     Spacing <- \(\backslash\)s+
 \end{alltt}
@@ -167,7 +167,7 @@ TBPEG Storing expressions that match a single character have a storage type of `
     LowerCase <- [a-z]
 \end{alltt}
 
-A ``!'' operator applied to a character matching sub-expression is always a storing expression of type character.
+A ``!'' operator applied to a character matching subexpression is always a storing expression of type character.
 \begin{alltt}
     StoresCharacter <- ! "p"
     StoresVoid      <- \&! "p"
@@ -188,13 +188,13 @@ Joined sequences of expressions that store ``character'' or ``string'' store ``s
 \end{alltt}
 
 \subsection{Storing sequences with tuples}
-Sequences with only a single storing sub-expression store the same type as this sub-expression.
+Sequences with only a single storing subexpression store the same type as this subexpression.
 \begin{alltt}
     VarDefinition <- "var" Identifier
 \end{alltt}
 
-Sequences containing multiple storing sub-expressions have storage type ``tuple''.
-The number of elements the tuple stores is equal to the number of storing expressions in the sequence and the type of each tuple element is equivalent to the type of the corresponding sub-expression.
+Sequences containing multiple storing subexpressions have storage type ``tuple''.
+The number of elements the tuple stores is equal to the number of storing expressions in the sequence and the type of each tuple element is equivalent to the type of the corresponding subexpression.
 
 A PEG expression that stores tuple(string, string):
 \begin{alltt}
@@ -206,8 +206,8 @@ A PEG expression that stores tuple(character, string):
     InitialAndSurname <- [A-Z] \(\wedge\) "." [a-zA-Z]+
 \end{alltt}
 
-If any sub-expressions of the sequence also have a storage type of tuple, then this tuple is collapsed into the parent tuple.
-In this case the number of elements in a tuple is equal to the number of storing non-tuple elements added to the number of elements in all tuple sub-expressions.
+If any subexpressions of the sequence also have a storage type of tuple, then this tuple is collapsed into the parent tuple.
+In this case the number of elements in a tuple is equal to the number of storing non-tuple elements added to the number of elements in all tuple subexpressions.
 
 In this PEG VariableDefinition stores tuple(string, string) and TypedVariableDefinition stores tuple(string, string, string):
 \begin{alltt}
@@ -223,7 +223,7 @@ In  this TBPEG FunctionDeclaration stores tuple(string, string):
 \end{alltt}
 
 \subsection{Storing ordered choice}
-If all of the sub-expressions of an ordered choice store the same type, then this is also the storage type of the ordered choice.
+If all of the subexpressions of an ordered choice store the same type, then this is also the storage type of the ordered choice.
 \begin{alltt}
     IdentifierBegin <- [a-z] / [A-Z]
 \end{alltt}
@@ -232,11 +232,11 @@ A variant type is modeled after a boost::variant\cite{boostvariant}.
 A variant(U) has a set of types U and may store any one of the types in U.
 It also stores state to indicate which of the types in U is currently stored.
 
-An ordered choice where each sub-expression stores a different type has a storage type of variant(T).
-T is the set of unique storage types from all sub-expressions of the ordered choice.
-Storage type is determined based on the storage type of the sub-expression and may be void with certain exceptions.
+An ordered choice where each subexpression stores a different type has a storage type of variant(T).
+T is the set of unique storage types from all subexpressions of the ordered choice.
+Storage type is determined based on the storage type of the subexpression and may be void with certain exceptions.
 Sub-expressions that are constant character matches have storage type ``character'' rather than void.
-All other sub-expressions with void storage type have storage type ``string'' except for predicates and the empty string $\varepsilon$.
+All other subexpressions with void storage type have storage type ``string'' except for predicates and the empty string $\varepsilon$.
 
 In this TBPEG VariablePrefix stores variant(void, string) and Expression stores variant(tuple(string, string), string):
 \begin{alltt}
@@ -245,7 +245,7 @@ In this TBPEG VariablePrefix stores variant(void, string) and Expression stores 
     Expression     <- Identifier / (Identifier "," Identifier)
 \end{alltt}
 
-If any sub-expressions of an ordered choice also have a storage type of variant, then this variant is collapsed into the parent variant.
+If any subexpressions of an ordered choice also have a storage type of variant, then this variant is collapsed into the parent variant.
 
 In this TBPEG FunctionPrefix stores variant(void, character, string):
 \begin{alltt}
@@ -255,19 +255,19 @@ In this TBPEG FunctionPrefix stores variant(void, character, string):
 \end{alltt}
 
 \subsection{Storing ``optional''}
-Optional expressions are stored using variant(void, S(sub-expression)).
+Optional expressions are stored using variant(void, S(subexpression)).
 In this TBPEG Prefix stores variant(void, string):
 \begin{alltt}
     Prefix <- ([a-zA-Z]+)?
 \end{alltt}
 
 \subsection{Storing repetitions of non-character matches}
-Repetitions that use $\wedge *$ and $\wedge +$ where the sub-expression stores a character store ``string''.
+Repetitions that use $\wedge *$ and $\wedge +$ where the subexpression stores a character store ``string''.
 \begin{alltt}
     String <- ["] (\(\backslash\)\(\backslash\) . / ! ["] )\(\wedge\)* ["]
 \end{alltt}
 
-Expressions which are repetitions of a sub-expression store list(S(sub-expression)).
+Expressions which are repetitions of a subexpression store list(S(subexpression)).
 In this TBPEG Arguments stores list(string) and TypedArguments stores list(tuple(string, string)):
 \begin{alltt}
     Identifier     <- [a-zA-Z]+
