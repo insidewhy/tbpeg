@@ -128,9 +128,8 @@ To disallow Spacing to match around join expressions $\wedge \%$ can be used.
 \end{alltt}
 
 \section{Storage types of TBPEG expressions}
-Every expression defined in TBPEG notation has an associated storage type.
-In cases where storage is not appropriate for an expression the storage type is ``void''.
-An expression with a void storage type is a ``constant expression'', and an expression with a non-void storage type is a ``storing expression''.
+Every expression ``E'' defined in TBPEG notation has an associated storage type ``S(E)'' which may be ``void'' to signify that nothing is stored.
+When ``S(E)'' is ``void'' then ``E'' is a ``constant expression'', otherwise it is a ``storing expression''.
 
 \subsection{Constant TBPEG expressions}
 Expressions that always match the same data are constant.
@@ -256,7 +255,7 @@ In this TBPEG FunctionPrefix stores variant(void, character, string):
 \end{alltt}
 
 \subsection{Storing ``optional''}
-Optional expressions are stored using variant(void, S) where S is the storage type of the sub-expression.
+Optional expressions are stored using variant(void, S(sub-expression)).
 In this TBPEG Prefix stores variant(void, string):
 \begin{alltt}
     Prefix <- ([a-zA-Z]+)?
@@ -268,7 +267,7 @@ Repetitions that use $\wedge *$ and $\wedge +$ where the sub-expression stores a
     String <- ["] (\(\backslash\)\(\backslash\) . / ! ["] )\(\wedge\)* ["]
 \end{alltt}
 
-Expressions which are repetitions of a sub-expression store list(S), where S is the storage type of the sub-expression.
+Expressions which are repetitions of a sub-expression store list(S(sub-expression)).
 In this TBPEG Arguments stores list(string) and TypedArguments stores list(tuple(string, string)):
 \begin{alltt}
     Identifier     <- [a-zA-Z]+
@@ -277,7 +276,7 @@ In this TBPEG Arguments stores list(string) and TypedArguments stores list(tuple
 \end{alltt}
 
 \subsection{Storing join expressions}
-The storage type of a join expression is equal to tuple(list(S), list(T)) where S is the storage type of the expression on the left hand side of the \% operator and T is the storage type of the expression on the right hand side. If T is void then list(S) is the storage type of the join expression.
+The storage type of a join expression is equal to tuple(list(S(LHS expression)), list(S(RHS expression))). When S(RHS expression) is void then the storage type is list(S(LHS expression)).
 
 In this TBPEG Arguments stores list(string) and Binaries stores tuple(list(string), list(char)):
 \begin{alltt}
@@ -292,8 +291,8 @@ Node rules are passed in the same way as non-node rules but the storage type of 
 For example a node rule that stores a tuple will be stored as a single element inside the tuple storing super-expression.
 
 Node rules introduce a new type into the type system and can be used to resolve ambiguity.
-A node rule named \verb+P+ will have storage type \verb+S(P)+, and a TBPEG parser generator would make \verb+S(P)+ a class or structure named \verb+P+ with an appropriate attribute created to store the matched data in.
-In the following TBPEG, Expression stores variant(S(Identifier), string).
+A node rule named \verb+P+ will have storage type \verb+C(P)+, and a TBPEG parser generator would make \verb+C(P)+ a class or structure named \verb+P+ with an appropriate attribute created to store the matched data in.
+In the following TBPEG, Expression stores variant(C(Identifier), string).
 If Identifier was not a node rule then it would be impossible to tell whether a string or Identifier reference was stored in an AST node created by the Expression rule.
 \begin{alltt}
     Identifier   <= [a-zA-Z]+
@@ -348,8 +347,8 @@ Would be stored in the the following AST which contains many redundant nodes:
 \end{alltt}
 
 The storage type of this grammar can be simplified using a \verb+|%+ rule.
-A rule of the form \verb+P <= Q |% R+ has storage type \verb+variant(S(P), storage type of Q)+ and at least one \verb+Q+ must match.
-In this case \verb+S(P)+ will have an attribute capable of storing \verb+vector(storage type of Q)+.
+A rule of the form \verb+P <= Q |% R+ has storage type \verb+variant(C(P), S(Q))+ and at least one \verb+Q+ must match.
+In this case \verb+C(P)+ will have an attribute capable of storing \verb+vector(S(Q))+.
 If a single \verb+Q+ is matched then the latter storage type is used, but if two or more \verb+Q+ match joined by \verb+R+ then the storage type of \verb+Q+ is used.
 Using this and relying on recursive expansion of variant storage types the storage type of the mathematics grammar can be simplified:
 \begin{alltt}
@@ -392,15 +391,15 @@ There are more tree rules:
     P <- Q|+
 \end{alltt}
 
-This stores \verb+variant(P, storage type of Q)+, depending on whether one or more \verb+Q+ matches.
-At least one \verb+Q+ must match and \verb+S(P)+ will contain an attribute capable of storing many \verb+P+.
+This stores \verb+variant(P, S(Q))+, depending on whether one or more \verb+Q+ matches.
+At least one \verb+Q+ must match and \verb+C(P)+ will contain an attribute capable of storing many \verb+P+.
 
 \begin{alltt}
     P <- Q R|?
 \end{alltt}
 
-This stores \verb+variant(P, storage type of Q)+, depending on whether \verb+R+ matches or not.
-\verb+S(P)+ will contain an attribute capable of storing both \verb+Q+ and \verb+R+.
+This stores \verb+variant(P, S(Q))+, depending on whether \verb+R+ matches or not.
+\verb+C(P)+ will contain an attribute capable of storing both \verb+Q+ and \verb+R+.
 
 \verb+|^%+ and \verb+|^++ are also provided which match and act the same as their equivalent non $\wedge$ rules but which respect the whitespace rules of their non-tree equivalents.
 
